@@ -32,7 +32,7 @@ Made for newcomers — a **plain-language, one-click, repeatable** guide. Just c
 
 ---
 
-## 0. First, learn to open a terminal
+## Before you start · Open a terminal
 
 Every step below is just: **copy** one line of command into a little window called a "terminal", then press **Enter**.
 
