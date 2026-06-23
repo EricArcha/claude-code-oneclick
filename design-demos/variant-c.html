@@ -1,0 +1,587 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>把 Claude Code 装进你自己的电脑</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;0,9..144,900;1,9..144,500;1,9..144,600&family=Noto+Sans+SC:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --clay:#CC785C;
+    --clay-deep:#A85740;
+    --amber:#E8A04C;
+    --ink:#241C18;
+    --ink-soft:#473A33;
+    --paper:#F6EEE3;
+    --paper-2:#EFE3D2;
+    --cream:#FBF5EC;
+    --charcoal:#2A211C;
+    --charcoal-2:#352A23;
+    --line:#E0CEB8;
+    --ok:#3F7A4E;
+    --shadow:rgba(46,30,20,.16);
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    margin:0;
+    background:var(--paper);
+    color:var(--ink);
+    font-family:"Noto Sans SC",system-ui,-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;
+    font-size:18px;
+    line-height:1.75;
+    -webkit-font-smoothing:antialiased;
+    text-wrap:pretty;
+    overflow-x:hidden;
+  }
+  .serif{font-family:"Fraunces","Newsreader",Georgia,serif;}
+  ::selection{background:var(--clay);color:var(--cream);}
+  a{color:var(--clay-deep);text-underline-offset:3px;text-decoration-thickness:2px;}
+  a:hover{color:var(--ink);}
+
+  /* paper grain */
+  body::before{
+    content:"";position:fixed;inset:0;pointer-events:none;z-index:0;opacity:.5;
+    background-image:radial-gradient(rgba(120,80,50,.035) 1px,transparent 1.4px);
+    background-size:5px 5px;
+  }
+  .wrap{max-width:980px;margin:0 auto;padding:0 26px;position:relative;z-index:1;}
+
+  /* ===== STICKY TOGGLE BAR ===== */
+  .topbar{
+    position:sticky;top:0;z-index:60;
+    background:rgba(246,238,227,.86);
+    backdrop-filter:blur(10px);
+    border-bottom:2px solid var(--ink);
+  }
+  .topbar-in{max-width:980px;margin:0 auto;padding:11px 26px;display:flex;align-items:center;gap:16px;flex-wrap:wrap;}
+  .brandmark{font-weight:900;letter-spacing:.02em;font-size:16px;display:flex;align-items:center;gap:9px;}
+  .brandmark .dot{width:13px;height:13px;background:var(--clay);border-radius:50%;display:inline-block;box-shadow:0 0 0 3px rgba(204,120,92,.22);}
+  .toggle{margin-left:auto;display:inline-flex;background:var(--cream);border:2px solid var(--ink);border-radius:999px;padding:4px;gap:3px;}
+  .toggle button{
+    font-family:inherit;font-size:15px;font-weight:700;color:var(--ink-soft);
+    border:0;background:transparent;padding:8px 18px;border-radius:999px;cursor:pointer;transition:.18s;white-space:nowrap;
+  }
+  .toggle button.active{background:var(--ink);color:var(--cream);}
+  .toggle button:not(.active):hover{color:var(--ink);}
+
+  /* ===== HERO ===== */
+  .hero{padding:74px 0 30px;position:relative;}
+  .badge{
+    display:inline-flex;align-items:center;gap:9px;
+    background:var(--ink);color:var(--cream);
+    font-size:15px;font-weight:700;padding:9px 18px;border-radius:999px;
+    box-shadow:5px 5px 0 var(--clay);
+  }
+  .badge::before{content:"";width:9px;height:9px;border-radius:50%;background:var(--amber);}
+  h1.title{
+    font-family:"Fraunces",serif;
+    font-weight:900;
+    font-size:clamp(46px,9vw,104px);
+    line-height:.96;
+    letter-spacing:-.02em;
+    margin:26px 0 0;
+    color:var(--ink);
+  }
+  h1.title em{font-style:italic;color:var(--clay);font-weight:600;}
+  .lede{font-size:clamp(19px,2.4vw,24px);max-width:30ch;margin:26px 0 0;color:var(--ink-soft);font-weight:500;}
+  .lede b{color:var(--ink);font-weight:700;}
+  .hero-grid{display:grid;grid-template-columns:1.35fr .65fr;gap:30px;align-items:end;}
+  .repo-chip{
+    display:inline-flex;align-items:center;gap:10px;margin-top:24px;
+    background:var(--cream);border:2px solid var(--ink);border-radius:14px;
+    padding:12px 16px;font-size:15px;font-weight:600;color:var(--ink);
+    box-shadow:4px 4px 0 var(--ink);text-decoration:none;transition:.16s;
+  }
+  .repo-chip:hover{transform:translate(-2px,-2px);box-shadow:6px 6px 0 var(--clay);color:var(--ink);}
+  .repo-chip code{font-family:ui-monospace,Menlo,monospace;font-size:13px;color:var(--clay-deep);}
+  .hero-art{position:relative;height:100%;min-height:200px;display:none;}
+  @media(min-width:780px){.hero-art{display:block;}}
+  .blob-num{
+    font-family:"Fraunces",serif;font-style:italic;font-weight:900;
+    font-size:230px;line-height:.8;color:var(--clay);opacity:.16;
+    position:absolute;right:-10px;bottom:-30px;user-select:none;
+  }
+
+  /* ===== SECTION HEAD ===== */
+  .sec{padding:48px 0;border-top:2px solid var(--ink);}
+  .kicker{font-size:14px;font-weight:800;letter-spacing:.16em;text-transform:uppercase;color:var(--clay-deep);}
+  h2{font-family:"Fraunces",serif;font-weight:900;font-size:clamp(30px,4.6vw,50px);line-height:1.04;letter-spacing:-.015em;margin:10px 0 0;}
+
+  /* ===== WHY CARDS ===== */
+  .why{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:30px;}
+  @media(max-width:760px){.why{grid-template-columns:1fr;}}
+  .why-card{background:var(--cream);border:2px solid var(--ink);border-radius:18px;padding:24px;box-shadow:5px 5px 0 var(--ink);position:relative;}
+  .why-card .wn{font-family:"Fraunces",serif;font-weight:900;font-style:italic;font-size:40px;color:var(--clay);line-height:1;}
+  .why-card h3{font-size:20px;font-weight:800;margin:12px 0 8px;}
+  .why-card p{font-size:16px;margin:0;color:var(--ink-soft);}
+  .pull{
+    font-family:"Fraunces",serif;font-style:italic;font-weight:600;
+    font-size:clamp(24px,3.6vw,38px);line-height:1.3;color:var(--ink);
+    margin:36px 0 0;padding-left:24px;border-left:7px solid var(--clay);max-width:24ch;
+  }
+
+  /* ===== STEP CARDS ===== */
+  .step{position:relative;background:var(--cream);border:2px solid var(--ink);border-radius:22px;padding:34px 30px 30px;margin-top:26px;box-shadow:7px 7px 0 var(--ink);}
+  .step-head{display:flex;align-items:flex-start;gap:22px;}
+  .numeral{
+    font-family:"Fraunces",serif;font-weight:900;font-style:italic;
+    font-size:clamp(78px,13vw,128px);line-height:.78;color:var(--clay);
+    flex:none;text-shadow:3px 3px 0 var(--paper-2);user-select:none;
+  }
+  .step-titles{padding-top:6px;}
+  .step h3{font-family:"Fraunces",serif;font-weight:900;font-size:clamp(26px,3.6vw,38px);line-height:1.02;margin:0;letter-spacing:-.01em;}
+  .step .sub{font-size:17px;color:var(--ink-soft);margin:10px 0 0;max-width:54ch;}
+  .tag{display:inline-block;font-size:13px;font-weight:800;letter-spacing:.04em;background:var(--amber);color:var(--ink);border:2px solid var(--ink);border-radius:999px;padding:3px 12px;margin-bottom:8px;}
+  .tag.ghost{background:var(--cream);color:var(--clay-deep);}
+
+  /* command block */
+  .cmd{margin-top:20px;background:var(--charcoal);border-radius:14px;overflow:hidden;border:2px solid var(--ink);}
+  .cmd-top{display:flex;align-items:center;gap:8px;padding:11px 15px;border-bottom:1px solid rgba(255,255,255,.09);}
+  .cmd-top .lights{display:flex;gap:6px;}
+  .cmd-top .lights i{width:11px;height:11px;border-radius:50%;display:inline-block;}
+  .cmd-top .lights i:nth-child(1){background:#E06A52;}
+  .cmd-top .lights i:nth-child(2){background:var(--amber);}
+  .cmd-top .lights i:nth-child(3){background:#5FA56B;}
+  .cmd-top .lbl{margin-left:6px;font-size:12.5px;color:#C9B8A8;font-weight:600;letter-spacing:.04em;font-family:ui-monospace,Menlo,monospace;}
+  .copy-btn{margin-left:auto;font-family:inherit;font-size:13px;font-weight:700;color:var(--charcoal);background:var(--cream);border:0;border-radius:8px;padding:7px 14px;cursor:pointer;transition:.15s;}
+  .copy-btn:hover{background:#fff;}
+  .copy-btn.done{background:var(--amber);color:var(--ink);}
+  .cmd pre{margin:0;padding:18px 17px;overflow-x:auto;}
+  .cmd code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:15px;line-height:1.6;color:var(--cream);white-space:pre;}
+  .cmd code .prompt{color:var(--amber);user-select:none;}
+
+  /* callout */
+  .callout{display:flex;gap:13px;margin-top:18px;background:var(--paper-2);border:2px solid var(--line);border-left:6px solid var(--clay);border-radius:12px;padding:15px 17px;font-size:15.5px;color:var(--ink-soft);}
+  .callout .ic{flex:none;font-weight:900;color:var(--clay-deep);font-family:"Fraunces",serif;font-style:italic;font-size:22px;line-height:1.1;}
+  .callout b{color:var(--ink);}
+  code.inline{font-family:ui-monospace,Menlo,monospace;font-size:.9em;background:var(--paper-2);border:1px solid var(--line);border-radius:5px;padding:1px 6px;color:var(--clay-deep);}
+
+  details.alt{margin-top:16px;border:2px dashed var(--line);border-radius:12px;background:var(--paper);overflow:hidden;}
+  details.alt summary{cursor:pointer;list-style:none;padding:13px 17px;font-weight:700;font-size:15px;color:var(--clay-deep);display:flex;align-items:center;gap:9px;}
+  details.alt summary::-webkit-details-marker{display:none;}
+  details.alt summary::before{content:"+";font-family:"Fraunces",serif;font-weight:900;font-size:20px;color:var(--clay);}
+  details.alt[open] summary::before{content:"–";}
+  details.alt .body{padding:0 17px 17px;}
+
+  /* done checkbox */
+  .donebox{margin-top:22px;display:flex;align-items:center;gap:14px;background:var(--ink);border-radius:14px;padding:14px 18px;cursor:pointer;user-select:none;transition:.16s;}
+  .donebox:hover{background:#1b1410;}
+  .donebox input{position:absolute;opacity:0;pointer-events:none;}
+  .donebox .box{width:28px;height:28px;flex:none;border:2.5px solid var(--cream);border-radius:8px;display:grid;place-items:center;color:var(--ink);transition:.16s;}
+  .donebox .box svg{width:18px;height:18px;opacity:0;transform:scale(.4);transition:.18s;}
+  .donebox input:checked ~ .box{background:var(--amber);border-color:var(--amber);}
+  .donebox input:checked ~ .box svg{opacity:1;transform:scale(1);}
+  .donebox .lbl{color:var(--cream);font-weight:700;font-size:16px;}
+  .donebox input:checked ~ .lbl{color:var(--amber);}
+
+  /* list (step3) */
+  .svc{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:20px;}
+  @media(max-width:680px){.svc{grid-template-columns:1fr;}}
+  .svc-card{background:var(--paper);border:2px solid var(--line);border-radius:14px;padding:18px;}
+  .svc-card h4{margin:0 0 6px;font-size:19px;font-weight:800;}
+  .svc-card h4 span{font-family:"Fraunces",serif;font-style:italic;color:var(--clay);}
+  .svc-card p{margin:0 0 10px;font-size:15px;color:var(--ink-soft);}
+
+  /* progress */
+  .prog-wrap{display:flex;align-items:center;gap:22px;flex-wrap:wrap;margin-top:24px;}
+  .prog-num{font-family:"Fraunces",serif;font-weight:900;font-style:italic;font-size:clamp(44px,8vw,80px);line-height:.85;color:var(--ink);}
+  .prog-num b{color:var(--clay);}
+  .prog-track{flex:1;min-width:200px;height:22px;background:var(--paper-2);border:2px solid var(--ink);border-radius:999px;overflow:hidden;}
+  .prog-fill{height:100%;width:0;background:linear-gradient(90deg,var(--amber),var(--clay));transition:width .5s cubic-bezier(.2,.8,.2,1);}
+  .prog-dots{display:flex;gap:9px;}
+  .prog-dots i{width:16px;height:16px;border-radius:50%;border:2px solid var(--ink);background:var(--cream);transition:.25s;}
+  .prog-dots i.on{background:var(--clay);}
+
+  /* easter egg */
+  #egg{display:none;margin-top:30px;}
+  #egg.show{display:block;animation:pop .5s cubic-bezier(.2,1.3,.4,1);}
+  @keyframes pop{0%{transform:scale(.92);opacity:0}100%{transform:scale(1);opacity:1}}
+  .egg-card{position:relative;background:var(--ink);border-radius:24px;padding:48px 34px;text-align:center;overflow:hidden;border:2px solid var(--ink);box-shadow:9px 9px 0 var(--clay);}
+  .egg-card h2{font-family:"Fraunces",serif;font-style:italic;font-weight:900;font-size:clamp(38px,7vw,72px);line-height:.95;color:var(--amber);margin:0;letter-spacing:-.01em;}
+  .egg-card p{color:var(--cream);font-size:18px;max-width:40ch;margin:18px auto 0;}
+  .egg-card .ke{font-family:ui-monospace,Menlo,monospace;background:rgba(255,255,255,.1);border-radius:6px;padding:2px 8px;color:var(--amber);}
+
+  /* advanced */
+  .adv-step{background:var(--cream);border:2px solid var(--line);border-radius:18px;padding:26px;margin-top:18px;box-shadow:5px 5px 0 var(--line);}
+  .adv-step .step-head{gap:18px;}
+  .adv-step .numeral{font-size:clamp(56px,9vw,86px);color:var(--ink-soft);opacity:.55;text-shadow:none;}
+  .adv-step h3{font-size:clamp(22px,3vw,30px);}
+  .adv-step .sub{font-size:16px;}
+  .links-row{display:flex;flex-wrap:wrap;gap:10px;margin-top:14px;}
+  .lnk{display:inline-flex;align-items:center;gap:7px;background:var(--paper);border:2px solid var(--ink);border-radius:10px;padding:8px 14px;font-size:14px;font-weight:700;text-decoration:none;color:var(--ink);transition:.15s;}
+  .lnk:hover{background:var(--clay);color:var(--cream);}
+
+  footer{border-top:2px solid var(--ink);padding:40px 0 70px;margin-top:30px;}
+  footer p{font-size:15px;color:var(--ink-soft);max-width:60ch;}
+
+  /* confetti */
+  #confetti{position:fixed;inset:0;pointer-events:none;z-index:200;}
+</style>
+</head>
+<body>
+
+<!-- STICKY TOGGLE -->
+<div class="topbar">
+  <div class="topbar-in">
+    <span class="brandmark"><span class="dot"></span>Claude Code · 保姆级安装</span>
+    <div class="toggle" role="group" aria-label="选择你的系统">
+      <button data-os="mac" id="btn-mac"> macOS</button>
+      <button data-os="win" id="btn-win">🪟 Windows</button>
+    </div>
+  </div>
+</div>
+
+<div class="wrap">
+
+  <!-- HERO -->
+  <header class="hero">
+    <div class="hero-grid">
+      <div>
+        <span class="badge">给「电脑小白 / AI 新手」的保姆级引导</span>
+        <h1 class="title">把 <em>Claude&nbsp;Code</em><br>装进你<br>自己的电脑</h1>
+        <p class="lede">不用懂编程。跟着下面三步，<b>复制 → 粘贴 → 回车</b>，你就能拥有一个住在电脑里、能帮你动手干活的 AI 助手。</p>
+        <a class="repo-chip" href="https://github.com/EricArcha/claude-code-oneclick" target="_blank" rel="noopener">
+          开源仓库 <code>github.com/EricArcha/claude-code-oneclick</code>
+        </a>
+      </div>
+      <div class="hero-art"><span class="blob-num serif">CC</span></div>
+    </div>
+  </header>
+
+  <!-- WHY -->
+  <section class="sec" id="why">
+    <span class="kicker">Why Claude Code</span>
+    <h2>为什么是 Claude Code</h2>
+    <div class="why">
+      <div class="why-card">
+        <div class="wn">01</div>
+        <h3>它能直接动手</h3>
+        <p>网页版 AI 只能聊天，你得来回复制粘贴。Claude Code 直接读写你电脑里的文件、帮你跑命令。</p>
+      </div>
+      <div class="why-card">
+        <div class="wn">02</div>
+        <h3>它会自己干多步</h3>
+        <p>不是一问一答，而是能连续完成一整件任务的「智能体」：自己查、自己改、自己验证。</p>
+      </div>
+      <div class="why-card">
+        <div class="wn">03</div>
+        <h3>它可换、可扩展</h3>
+        <p>后台 API 随你换，还能装联网搜索、飞书等插件。比封闭的网页产品自由得多。</p>
+      </div>
+    </div>
+    <p class="pull">「网页 AI 像隔着玻璃指挥；Claude Code 是请进门，帮你动手。」</p>
+  </section>
+
+  <!-- CHECK ENV -->
+  <section class="sec" id="check">
+    <span class="kicker">Step 0 · Health check</span>
+    <h2>先做个「体检」 <span class="tag">推荐先跑</span></h2>
+    <p class="step sub" style="background:none;border:0;box-shadow:none;padding:14px 0 0;margin:0;">一条命令，看看你的电脑已装好哪些、还差哪些。已完成的步骤可直接跳过。</p>
+    <div class="cmd" data-cmd="check">
+      <div class="cmd-top"><span class="lights"><i></i><i></i><i></i></span><span class="lbl" data-lbl>终端 · macOS</span><button class="copy-btn">复制</button></div>
+      <pre><code></code></pre>
+    </div>
+    <div class="callout"><span class="ic">★</span><div>三步全部完成时，体检会送你一个小彩蛋 🎉</div></div>
+  </section>
+
+  <!-- PROGRESS -->
+  <section class="sec" id="progress">
+    <span class="kicker">Your progress</span>
+    <h2 id="progLabel">核心进度：0 / 3</h2>
+    <div class="prog-wrap">
+      <div class="prog-num"><b id="progBig">0</b> / 3</div>
+      <div class="prog-track"><div class="prog-fill" id="progFill"></div></div>
+      <div class="prog-dots"><i data-dot="install"></i><i data-dot="config"></i><i data-dot="search"></i></div>
+    </div>
+  </section>
+
+  <!-- STEP 1 -->
+  <section class="sec" id="step1">
+    <div class="step">
+      <div class="step-head">
+        <div class="numeral">1</div>
+        <div class="step-titles">
+          <h3>安装最新版 Claude Code</h3>
+          <p class="sub">一行命令搞定。原生安装版以后会自动更新，无需手动升级。</p>
+        </div>
+      </div>
+      <div class="cmd" data-cmd="install">
+        <div class="cmd-top"><span class="lights"><i></i><i></i><i></i></span><span class="lbl" data-lbl>终端 · macOS</span><button class="copy-btn">复制</button></div>
+        <pre><code></code></pre>
+      </div>
+      <div class="callout"><span class="ic">✓</span><div>装完后关闭并重新打开终端，输入 <code class="inline">claude --version</code> 能看到版本号就成功了。</div></div>
+      <details class="alt">
+        <summary>装不上？点这里看备选方案（需要 Node.js 18+）</summary>
+        <div class="body">
+          <div class="cmd" data-cmd="npm">
+            <div class="cmd-top"><span class="lights"><i></i><i></i><i></i></span><span class="lbl" data-lbl>终端 · npm</span><button class="copy-btn">复制</button></div>
+            <pre><code></code></pre>
+          </div>
+        </div>
+      </details>
+      <label class="donebox"><input type="checkbox" data-step="install"><span class="box"><svg viewBox="0 0 24 24" fill="none" stroke="#241C18" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span><span class="lbl">我已完成第 1 步</span></label>
+    </div>
+  </section>
+
+  <!-- STEP 2 -->
+  <section class="sec" id="step2">
+    <div class="step">
+      <div class="step-head">
+        <div class="numeral">2</div>
+        <div class="step-titles">
+          <h3>配置你自己的 API</h3>
+          <p class="sub">填上你的服务商地址和密钥，就不需要官方账号登录了。随时可重跑换服务。</p>
+        </div>
+      </div>
+      <div class="cmd" data-cmd="config">
+        <div class="cmd-top"><span class="lights"><i></i><i></i><i></i></span><span class="lbl" data-lbl>终端 · macOS</span><button class="copy-btn">复制</button></div>
+        <pre><code></code></pre>
+      </div>
+      <div class="callout"><span class="ic">✓</span><div>脚本会把配置安全地写进 <code class="inline">~/.claude/settings.json</code>，不会动你其他设置；密钥不会显示在屏幕上。想换一家服务商？再运行一次这个命令就行。</div></div>
+      <label class="donebox"><input type="checkbox" data-step="config"><span class="box"><svg viewBox="0 0 24 24" fill="none" stroke="#241C18" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span><span class="lbl">我已完成第 2 步</span></label>
+    </div>
+  </section>
+
+  <!-- STEP 3 -->
+  <section class="sec" id="step3">
+    <div class="step">
+      <div class="step-head">
+        <div class="numeral">3</div>
+        <div class="step-titles">
+          <h3>给它装上「联网搜索」</h3>
+          <p class="sub">让 Claude Code 能查最新资料。两家免费服务，配一个或都配都行。</p>
+        </div>
+      </div>
+      <div class="cmd" data-cmd="search">
+        <div class="cmd-top"><span class="lights"><i></i><i></i><i></i></span><span class="lbl" data-lbl>终端 · macOS</span><button class="copy-btn">复制</button></div>
+        <pre><code></code></pre>
+      </div>
+      <div class="svc">
+        <div class="svc-card">
+          <h4><span>Tavily</span> —— 实时网页检索</h4>
+          <p>适合「查最新 / 找事实」。免费每月 1000 次、免信用卡。</p>
+          <a class="lnk" href="https://app.tavily.com" target="_blank" rel="noopener">注册 app.tavily.com →</a>
+        </div>
+        <div class="svc-card">
+          <h4><span>Exa</span> —— 语义搜索</h4>
+          <p>按「意思」找相似内容与研究资料，适合「做研究」。新号送 $10 额度。</p>
+          <a class="lnk" href="https://dashboard.exa.ai" target="_blank" rel="noopener">注册 dashboard.exa.ai →</a>
+        </div>
+      </div>
+      <div class="callout"><span class="ic">!</span><div>官网打不开拿不到 Key？别卡在这——先跳过，本地备份说明在 <code class="inline">docs/tavily.md</code>、<code class="inline">docs/exa.md</code>，回头再配。</div></div>
+      <label class="donebox"><input type="checkbox" data-step="search"><span class="box"><svg viewBox="0 0 24 24" fill="none" stroke="#241C18" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span><span class="lbl">我已完成第 3 步</span></label>
+    </div>
+  </section>
+
+  <!-- EASTER EGG -->
+  <div id="egg">
+    <div class="egg-card">
+      <h2>YOU ARE A<br>CC GENIUS!</h2>
+      <p>三步全部完成，你的 Claude Code 已经满血上线。打开终端输入 <span class="ke">claude</span>，开始你的第一段对话吧！</p>
+    </div>
+  </div>
+
+  <!-- ADVANCED -->
+  <section class="sec" id="advanced">
+    <span class="kicker">Optional · Power-ups</span>
+    <h2>可选 · 进阶增强</h2>
+
+    <div class="adv-step">
+      <div class="step-head">
+        <div class="numeral">4</div>
+        <div class="step-titles">
+          <span class="tag ghost">可选</span>
+          <h3>安装飞书 CLI</h3>
+          <p class="sub">把飞书的文档、表格、日历等接进 Claude Code，优化工作流。需要 Node.js。</p>
+        </div>
+      </div>
+      <div class="cmd" data-cmd="lark">
+        <div class="cmd-top"><span class="lights"><i></i><i></i><i></i></span><span class="lbl" data-lbl>终端 · macOS</span><button class="copy-btn">复制</button></div>
+        <pre><code></code></pre>
+      </div>
+      <div class="links-row"><a class="lnk" href="https://github.com/larksuite/cli" target="_blank" rel="noopener">github.com/larksuite/cli →</a></div>
+    </div>
+
+    <div class="adv-step">
+      <div class="step-head">
+        <div class="numeral">5</div>
+        <div class="step-titles">
+          <span class="tag ghost">可选 · 进阶</span>
+          <h3>安装 cc-switch</h3>
+          <p class="sub">一个图形界面 App，方便在多个后台 API 间一键切换、统一管理插件。</p>
+        </div>
+      </div>
+      <div class="cmd" data-cmd="ccswitch">
+        <div class="cmd-top"><span class="lights"><i></i><i></i><i></i></span><span class="lbl" data-lbl>终端 · macOS</span><button class="copy-btn">复制</button></div>
+        <pre><code></code></pre>
+      </div>
+      <div class="links-row">
+        <a class="lnk" href="https://github.com/farion1231/cc-switch/releases" target="_blank" rel="noopener">下载 Releases →</a>
+        <a class="lnk" href="https://ccswitch.io" target="_blank" rel="noopener">ccswitch.io →</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer>
+    <p>跟着步骤走，遇到问题先跑「体检」。本引导仅引导安装与配置，不收集任何密钥。</p>
+    <p style="margin-top:12px;"><a href="https://github.com/EricArcha/claude-code-oneclick" target="_blank" rel="noopener">github.com/EricArcha/claude-code-oneclick</a></p>
+  </footer>
+
+</div>
+
+<canvas id="confetti"></canvas>
+
+<script>
+(function(){
+  "use strict";
+
+  // ===== commands =====
+  var CMD = {
+    check:    { mac:'bash <(curl -fsSL https://raw.githubusercontent.com/EricArcha/claude-code-oneclick/main/scripts/check-env.sh)',
+                win:'irm https://raw.githubusercontent.com/EricArcha/claude-code-oneclick/main/scripts/check-env.ps1 | iex' },
+    install:  { mac:'curl -fsSL https://claude.ai/install.sh | bash',
+                win:'irm https://claude.ai/install.ps1 | iex' },
+    npm:      { mac:'npm install -g @anthropic-ai/claude-code',
+                win:'npm install -g @anthropic-ai/claude-code' },
+    config:   { mac:'bash <(curl -fsSL https://raw.githubusercontent.com/EricArcha/claude-code-oneclick/main/scripts/config-api.sh)',
+                win:'irm https://raw.githubusercontent.com/EricArcha/claude-code-oneclick/main/scripts/config-api.ps1 | iex' },
+    search:   { mac:'bash <(curl -fsSL https://raw.githubusercontent.com/EricArcha/claude-code-oneclick/main/scripts/setup-search-mcp.sh)',
+                win:'irm https://raw.githubusercontent.com/EricArcha/claude-code-oneclick/main/scripts/setup-search-mcp.ps1 | iex' },
+    lark:     { mac:'bash <(curl -fsSL https://raw.githubusercontent.com/EricArcha/claude-code-oneclick/main/scripts/install-lark.sh)',
+                win:'irm https://raw.githubusercontent.com/EricArcha/claude-code-oneclick/main/scripts/install-lark.ps1 | iex' },
+    ccswitch: { mac:'bash <(curl -fsSL https://raw.githubusercontent.com/EricArcha/claude-code-oneclick/main/scripts/install-cc-switch.sh)',
+                win:'irm https://raw.githubusercontent.com/EricArcha/claude-code-oneclick/main/scripts/install-cc-switch.ps1 | iex' }
+  };
+
+  function esc(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+
+  // ===== OS toggle =====
+  var os = 'mac';
+  try{
+    var saved = localStorage.getItem('cc_os');
+    if(saved==='mac'||saved==='win'){ os = saved; }
+    else { os = /win/i.test(navigator.platform||navigator.userAgent) && !/mac/i.test(navigator.platform) ? 'win' : 'mac'; }
+  }catch(e){}
+
+  function renderCmds(){
+    document.querySelectorAll('.cmd').forEach(function(block){
+      var key = block.getAttribute('data-cmd');
+      var data = CMD[key]; if(!data) return;
+      var raw = data[os] || data.mac;
+      var code = block.querySelector('code');
+      var prompt = os==='win' ? 'PS&gt; ' : '$ ';
+      code.innerHTML = '<span class="prompt">'+prompt+'</span>'+esc(raw);
+      var lbl = block.querySelector('[data-lbl]');
+      if(lbl){
+        if(block.getAttribute('data-cmd')==='npm') lbl.textContent='终端 · npm';
+        else lbl.textContent = os==='win' ? '终端 · Windows' : '终端 · macOS';
+      }
+    });
+  }
+
+  function setOS(next){
+    os = next;
+    try{ localStorage.setItem('cc_os', os); }catch(e){}
+    document.getElementById('btn-mac').classList.toggle('active', os==='mac');
+    document.getElementById('btn-win').classList.toggle('active', os==='win');
+    renderCmds();
+  }
+  document.getElementById('btn-mac').addEventListener('click',function(){setOS('mac');});
+  document.getElementById('btn-win').addEventListener('click',function(){setOS('win');});
+  setOS(os);
+
+  // ===== copy buttons =====
+  document.querySelectorAll('.cmd').forEach(function(block){
+    var btn = block.querySelector('.copy-btn');
+    btn.addEventListener('click', function(){
+      var key = block.getAttribute('data-cmd');
+      var text = (CMD[key][os] || CMD[key].mac);
+      function ok(){
+        btn.textContent='已复制 ✓'; btn.classList.add('done');
+        setTimeout(function(){ btn.textContent='复制'; btn.classList.remove('done'); }, 1600);
+      }
+      if(navigator.clipboard && navigator.clipboard.writeText){
+        navigator.clipboard.writeText(text).then(ok, function(){ fallback(text, ok); });
+      } else { fallback(text, ok); }
+    });
+  });
+  function fallback(text, ok){
+    var ta=document.createElement('textarea');
+    ta.value=text; ta.style.position='fixed'; ta.style.opacity='0'; ta.style.top='0';
+    document.body.appendChild(ta); ta.focus(); ta.select();
+    try{ document.execCommand('copy'); ok(); }catch(e){}
+    document.body.removeChild(ta);
+  }
+
+  // ===== progress + checkboxes =====
+  var steps=['install','config','search'];
+  var boxes={};
+  document.querySelectorAll('.donebox input').forEach(function(inp){
+    var s=inp.getAttribute('data-step'); boxes[s]=inp;
+    try{ if(localStorage.getItem('cc_done_'+s)==='1') inp.checked=true; }catch(e){}
+    inp.addEventListener('change', function(){
+      try{ localStorage.setItem('cc_done_'+s, inp.checked?'1':'0'); }catch(e){}
+      update();
+    });
+  });
+
+  var eggShown=false;
+  function update(){
+    var n=0;
+    steps.forEach(function(s){
+      var on = boxes[s] && boxes[s].checked;
+      if(on) n++;
+      var dot=document.querySelector('[data-dot="'+s+'"]');
+      if(dot) dot.classList.toggle('on', !!on);
+    });
+    document.getElementById('progLabel').textContent='核心进度：'+n+' / 3';
+    document.getElementById('progBig').textContent=n;
+    document.getElementById('progFill').style.width=(n/3*100)+'%';
+    var egg=document.getElementById('egg');
+    if(n===3){
+      egg.classList.add('show');
+      if(!eggShown){ eggShown=true; burst(); }
+    } else {
+      egg.classList.remove('show'); eggShown=false;
+    }
+  }
+  update();
+
+  // ===== confetti =====
+  var cv=document.getElementById('confetti'), ctx=cv.getContext('2d'), parts=[], raf=null;
+  function size(){ cv.width=innerWidth; cv.height=innerHeight; }
+  size(); addEventListener('resize', size);
+  var COL=['#CC785C','#E8A04C','#FBF5EC','#A85740','#3F7A4E'];
+  function burst(){
+    parts=[];
+    for(var i=0;i<150;i++){
+      parts.push({x:innerWidth/2+(Math.random()-.5)*220, y:innerHeight*0.34,
+        vx:(Math.random()-.5)*11, vy:Math.random()*-13-4,
+        s:6+Math.random()*8, r:Math.random()*Math.PI, vr:(Math.random()-.5)*.3,
+        c:COL[(Math.random()*COL.length)|0], life:120+Math.random()*40});
+    }
+    if(!raf) tick();
+  }
+  function tick(){
+    ctx.clearRect(0,0,cv.width,cv.height);
+    var alive=false;
+    for(var i=0;i<parts.length;i++){
+      var p=parts[i]; if(p.life<=0) continue; alive=true;
+      p.vy+=0.32; p.x+=p.vx; p.y+=p.vy; p.r+=p.vr; p.life--;
+      ctx.save(); ctx.translate(p.x,p.y); ctx.rotate(p.r);
+      ctx.globalAlpha=Math.max(0,Math.min(1,p.life/40));
+      ctx.fillStyle=p.c; ctx.fillRect(-p.s/2,-p.s/2,p.s,p.s*0.6);
+      ctx.restore();
+    }
+    if(alive){ raf=requestAnimationFrame(tick); }
+    else { ctx.clearRect(0,0,cv.width,cv.height); raf=null; }
+  }
+
+})();
+</script>
+</body>
+</html>
