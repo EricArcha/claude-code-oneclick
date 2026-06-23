@@ -22,6 +22,14 @@ No download needed — it opens right in the browser (with a Windows / macOS swi
 
 Installing and configuring Claude Code can feel intimidating for newcomers. This repo turns it into a **plain-language, one-click, repeatable** guide. Copy → paste → Enter, and in three steps you'll have an AI that lives on your computer and can actually do things for you.
 
+**After these three steps, you'll have:**
+
+- ✅ An AI assistant that can **read/write files and run commands**, living on your own computer
+- ✅ **Your own API** — skip the official login, switch providers anytime
+- ✅ **Web search** for up-to-date info, not just the model's memory
+
+> ⏱️ ~5 minutes total · just copy & paste · free to start
+
 ---
 
 ## 0. First, learn to open a terminal
