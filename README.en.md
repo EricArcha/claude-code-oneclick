@@ -79,7 +79,23 @@ Trouble installing? Fallback (needs Node.js 18+): `npm install -g @anthropic-ai/
 
 ## Step 2 · Configure your own API (skip the official login, re-runnable)
 
-Paste your **API base URL** and **key** when prompted. The script safely writes them into `~/.claude/settings.json` (it won't touch your other settings, and the key is never echoed). **Want to switch providers? Just run it again.**
+Run the script and choose your path first:
+
+- **Pick from list** (recommended for beginners) → just enter your API Key; base URL and model name are filled in automatically
+- **Custom** → enter base URL, key, and model name manually (you know what you're doing)
+
+Built-in provider presets:
+
+| Provider | Model Name | Notes |
+|----------|------------|-------|
+| DeepSeek | `deepseek-v4-pro[1m]` | Both V4 Pro & Flash have 1M context; `[1m]` is CC's long-context marker |
+| Kimi (Moonshot) | `kimi-k2.7-code` | |
+| Zhipu GLM | `glm-5.1` | |
+| Alibaba Bailian | *(not set)* | Bailian auto-routes, no model name needed |
+| Doubao Seed | `doubao-seed-2-0-code-preview-latest` | |
+| MiniMax | `MiniMax-M2.7` | |
+
+> **What's a model name?** Tells Claude Code which model to call. Without it, CC may fail to start because the proxy doesn't recognize CC's default model names. The script writes the model name, base URL, and key together into your config.
 
 ```bash
 # macOS / Linux
@@ -91,6 +107,8 @@ irm https://raw.githubusercontent.com/EricArcha/claude-code-oneclick/main/script
 ```
 
 > Advanced: to switch between multiple APIs from a GUI, see **cc-switch** in Step 5.
+
+For more providers' model names and config parameters, see [`docs/llm-providers.md`](docs/llm-providers.md).
 
 ---
 

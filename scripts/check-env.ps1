@@ -20,7 +20,12 @@ if (Get-Command claude -ErrorAction SilentlyContinue) {
 
 # 2) 自有 API 配置
 if ((Test-Path $settingsFile) -and (Select-String -Path $settingsFile -Pattern "ANTHROPIC_BASE_URL" -Quiet)) {
-  Write-Host "✓ 第 2 步  已配置自己的 API（settings.json 里有 ANTHROPIC_BASE_URL）" -ForegroundColor Green
+  if (Select-String -Path $settingsFile -Pattern "ANTHROPIC_MODEL" -Quiet) {
+    Write-Host "✓ 第 2 步  已配置自己的 API（地址 + 模型已设置）" -ForegroundColor Green
+  } else {
+    Write-Host "✓ 第 2 步  已配置 API 地址" -ForegroundColor Green -NoNewline
+    Write-Host "（建议补设模型名，重跑 config-api 即可）" -ForegroundColor Yellow
+  }
   $doneApi = $true
 } else {
   Write-Host "✗ 第 2 步  还没配置自己的 API  → 运行 config-api 脚本" -ForegroundColor Red

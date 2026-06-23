@@ -79,7 +79,23 @@ irm https://claude.ai/install.ps1 | iex
 
 ## 第 2 步 · 配置你自己的 API（跳过官方登录，可重复运行）
 
-按提示粘贴你的 **API 地址**和**密钥**，脚本会安全写进 `~/.claude/settings.json`（不动你其他设置，密钥不回显）。**想换服务商？再跑一次即可。**
+运行脚本后先选「从服务商列表选」还是「自定义」：
+
+- **选服务商**（推荐小白）→ 只需输入 API Key，地址和模型名自动填好
+- **自定义** → 手动输入地址、密钥、模型名（清楚自己在用什么）
+
+内置服务商预设：
+
+| 服务商 | 模型名 | 备注 |
+|--------|--------|------|
+| DeepSeek（深度求索） | `deepseek-v4-pro[1m]` | V4 Pro+Flash 均 1M 上下文，`[1m]` 是 CC 长上下文标记 |
+| Kimi（月之暗面） | `kimi-k2.7-code` | |
+| 智谱 GLM | `glm-5.1` | |
+| 阿里百炼 | 无需指定 | 百炼自动路由，不设模型名 |
+| 豆包 Seed | `doubao-seed-2-0-code-preview-latest` | |
+| MiniMax | `MiniMax-M2.7` | |
+
+> **模型名是什么？** 告诉 Claude Code 该调用哪个模型。不设模型名可能导致启动报错——服务商不认识 CC 的默认模型名。脚本会自动把模型名 + 地址 + 密钥一起写进配置文件。
 
 ```bash
 # macOS / Linux
@@ -91,6 +107,8 @@ irm https://raw.githubusercontent.com/EricArcha/claude-code-oneclick/main/script
 ```
 
 > 进阶：想在多个 API 间图形化一键切换，见第 5 步的 **cc-switch**。
+
+更多服务商的模型名与配置参数见 [`docs/llm-providers.md`](docs/llm-providers.md)。
 
 ---
 

@@ -23,7 +23,11 @@ fi
 
 # 2) 自有 API 配置
 if [ -f "$SETTINGS_FILE" ] && grep -q "ANTHROPIC_BASE_URL" "$SETTINGS_FILE" 2>/dev/null; then
-  printf "${GREEN}✓${NC} 第 2 步  已配置自己的 API（settings.json 里有 ANTHROPIC_BASE_URL）\n"
+  if grep -q "ANTHROPIC_MODEL" "$SETTINGS_FILE" 2>/dev/null; then
+    printf "${GREEN}✓${NC} 第 2 步  已配置自己的 API（地址 + 模型已设置）\n"
+  else
+    printf "${GREEN}✓${NC} 第 2 步  已配置 API 地址（${YELLOW}建议补设模型名，重跑 config-api 即可${NC}）\n"
+  fi
   done_api=1
 else
   printf "${RED}✗${NC} 第 2 步  还没配置自己的 API  → 运行 config-api 脚本\n"
