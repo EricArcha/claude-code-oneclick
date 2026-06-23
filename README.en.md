@@ -22,9 +22,6 @@ No download needed — it opens right in the browser (with a Windows / macOS swi
 
 Installing and configuring Claude Code can feel intimidating for newcomers. This repo turns it into a **plain-language, one-click, repeatable** guide. Copy → paste → Enter, and in three steps you'll have an AI that lives on your computer and can actually do things for you.
 
-> 📂 Repo: <https://github.com/EricArcha/claude-code-oneclick>
-> 🌐 Online guide: <https://ericarcha.github.io/claude-code-oneclick/> (or just double-click `index.html` in this repo for offline use)
-
 ---
 
 ## 0. First, learn to open a terminal

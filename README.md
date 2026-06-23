@@ -22,9 +22,6 @@
 
 把「安装并配好 Claude Code」这件对新手有门槛的事，做成**通俗、一键、可重复**的保姆级引导。复制 → 粘贴 → 回车，三步就能拥有一个住在你电脑里、能帮你动手干活的 AI 助手。
 
-> 📂 仓库：<https://github.com/EricArcha/claude-code-oneclick>
-> 🌐 在线引导：<https://ericarcha.github.io/claude-code-oneclick/>（也可双击本仓库 `index.html` 离线使用）
-
 ---
 
 ## 0. 先学会「打开终端」
