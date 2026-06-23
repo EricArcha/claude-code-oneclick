@@ -1,9 +1,29 @@
-# Claude Code 一键安装引导（给电脑小白 / AI 新手）
+<div align="center">
+
+**中文** ｜ [English](README.en.md)
+
+# 🚀 Claude Code 一键安装引导
+
+给「电脑小白 / AI 新手」的保姆级安装配置引导 —— 装好 · 配自有 API · 联网搜索
+
+![Platform](https://img.shields.io/badge/平台-Windows%20%7C%20macOS-CC785C?style=flat-square)
+![Setup](https://img.shields.io/badge/安装-一键完成-3F7A4E?style=flat-square)
+![Beginner](https://img.shields.io/badge/小白-友好-E8A04C?style=flat-square)
+[![Powered by Claude Code](https://img.shields.io/badge/Powered%20by-Claude%20Code-CC785C?style=flat-square&logo=anthropic&logoColor=white)](https://claude.com/claude-code)
+[![Live Guide](https://img.shields.io/website?url=https%3A%2F%2Fericarcha.github.io%2Fclaude-code-oneclick%2F&style=flat-square&label=%E5%9C%A8%E7%BA%BF%E5%BC%95%E5%AF%BC&up_message=online&up_color=3F7A4E&down_message=building)](https://ericarcha.github.io/claude-code-oneclick/)
+[![Stars](https://img.shields.io/github/stars/EricArcha/claude-code-oneclick?style=flat-square&color=CC785C)](https://github.com/EricArcha/claude-code-oneclick/stargazers)
+[![Last commit](https://img.shields.io/github/last-commit/EricArcha/claude-code-oneclick?style=flat-square&color=E8A04C)](https://github.com/EricArcha/claude-code-oneclick/commits/main)
+
+### 🌐 [点此在线打开图文引导 →](https://ericarcha.github.io/claude-code-oneclick/)
+
+无需下载，浏览器直接看（带 Windows / macOS 切换与一键复制）
+
+</div>
 
 把「安装并配好 Claude Code」这件对新手有门槛的事，做成**通俗、一键、可重复**的保姆级引导。复制 → 粘贴 → 回车，三步就能拥有一个住在你电脑里、能帮你动手干活的 AI 助手。
 
-> 仓库：<https://github.com/EricArcha/claude-code-oneclick>
-> 网页版引导：双击打开本仓库的 **`index.html`** 即可（纯静态、可离线、带 Windows/macOS 切换与一键复制）。
+> 📂 仓库：<https://github.com/EricArcha/claude-code-oneclick>
+> 🌐 在线引导：<https://ericarcha.github.io/claude-code-oneclick/>（也可双击本仓库 `index.html` 离线使用）
 
 ---
 
@@ -125,7 +145,8 @@ claude-code-oneclick/
 │   └── install-cc-switch.* # 可选：cc-switch
 ├── docs/                 # 各工具本地备份文档（防官网打不开堵塞）
 │   └── tavily.md · exa.md · lark-cli.md · cc-switch.md
-└── README.md
+├── README.md             # 中文说明（默认）
+└── README.en.md          # English
 ```
 
 ## 常见问题
