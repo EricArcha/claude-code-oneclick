@@ -49,8 +49,20 @@ fi
 command -v lark-cli >/dev/null 2>&1 && { has_lark=1; printf "${GREEN}✓${NC} 可选    飞书 CLI 已安装\n"; } \
   || printf "${YELLOW}○${NC} 可选    飞书 CLI 未安装（不影响主流程）\n"
 
-if [ -d "/Applications/cc-switch.app" ] || command -v cc-switch >/dev/null 2>&1; then
-  has_switch=1; printf "${GREEN}✓${NC} 可选    cc-switch 已安装\n"
+# cc-switch 的安装名/路径在不同版本与平台上写法不一：
+#   macOS  → /Applications/CC Switch.app（官方 cask 产物，大写+空格）
+#   Linux  → DEB/RPM 多为 /usr/bin/cc-switch（PATH 兜底）或桌面入口
+# 用大小写不敏感通配逐个判断，避免某个通配未命中时把字面量传给 ls 造成误判。
+for _d in \
+  /Applications/*[Ss]witch*.app \
+  "$HOME"/Applications/*[Ss]witch*.app \
+  /usr/share/applications/*[Cc][Cc]*[Ss]witch* \
+  "$HOME"/.local/share/applications/*[Cc][Cc]*[Ss]witch*; do
+  [ -e "$_d" ] && has_switch=1
+done
+command -v cc-switch >/dev/null 2>&1 && has_switch=1
+if [ "$has_switch" -eq 1 ]; then
+  printf "${GREEN}✓${NC} 可选    cc-switch 已安装\n"
 else
   printf "${YELLOW}○${NC} 可选    cc-switch 未安装（不影响主流程）\n"
 fi

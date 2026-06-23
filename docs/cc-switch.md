@@ -39,3 +39,11 @@ Windows 10+、macOS 12+、主流 Linux（Ubuntu 22.04+ / Debian 11+ / Fedora 34+
 
 ## 提示
 安装后从「应用程序 / 启动台」（macOS）或「开始菜单」（Windows）打开，在图形界面里添加并切换你的多套 API 配置即可。
+
+## 排错：自检显示「cc-switch 未安装」但其实装了？
+cc-switch 安装后的程序名带空格、大写——**不是** `cc-switch`：
+- **macOS**：`/Applications/CC Switch.app`（官方 Homebrew cask 产物）
+- **Windows**：`%LocalAppData%\Programs\CC Switch`（winget/MSI，user 域）
+
+而且它是图形界面 App，**可执行文件不会进 PATH**，所以 `cc-switch` 命令查不到属正常。
+若自检脚本仍误报「未安装」，多半是脚本用旧的写死名（`cc-switch.app`）匹配——升级到最新脚本即可（已改为大小写不敏感通配匹配）。这一项是「可选 · 进阶」，误报也不影响主流程。

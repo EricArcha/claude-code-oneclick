@@ -14,7 +14,8 @@ Write-Host ""
 
 if (Get-Command winget -ErrorAction SilentlyContinue) {
   Say "检测到 winget，尝试安装…"
-  winget install cc-switch
+  # 用官方包标识 farion1231.CC-Switch（-e 精确匹配），避免按名字 "cc-switch" 搜出歧义或匹配不到
+  winget install --id farion1231.CC-Switch -e --accept-source-agreements --accept-package-agreements
   if ($LASTEXITCODE -eq 0) {
     Ok "安装完成！在开始菜单里打开 cc-switch 即可。"
   } else {

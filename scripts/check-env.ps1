@@ -44,7 +44,15 @@ if ($doneCC) {
 if (Get-Command lark-cli -ErrorAction SilentlyContinue) { Write-Host "✓ 可选    飞书 CLI 已安装" -ForegroundColor Green }
 else { Write-Host "○ 可选    飞书 CLI 未安装（不影响主流程）" -ForegroundColor Yellow }
 
-if ((Get-Command cc-switch -ErrorAction SilentlyContinue) -or (Test-Path "$env:LOCALAPPDATA\Programs\cc-switch")) {
+# cc-switch 安装名/路径在不同打包里写法不一（CC Switch / cc-switch），
+# winget(MSI, user 域) 默认装到 %LocalAppData%\Programs\CC Switch。用通配匹配多处常见位置。
+$switchPaths = @(
+  "$env:LOCALAPPDATA\Programs\*[Ss]witch*",
+  "$env:ProgramFiles\*CC*[Ss]witch*",
+  "${env:ProgramFiles(x86)}\*CC*[Ss]witch*"
+)
+$hasSwitch = (Get-Command cc-switch -ErrorAction SilentlyContinue) -or ($switchPaths | Where-Object { Test-Path $_ })
+if ($hasSwitch) {
   Write-Host "✓ 可选    cc-switch 已安装" -ForegroundColor Green
 } else { Write-Host "○ 可选    cc-switch 未安装（不影响主流程）" -ForegroundColor Yellow }
 
