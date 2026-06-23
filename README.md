@@ -124,7 +124,8 @@ claude-code-oneclick/
 │   ├── install-lark.*    # 可选：飞书 CLI
 │   └── install-cc-switch.* # 可选：cc-switch
 ├── docs/                 # 各工具本地备份文档（防官网打不开堵塞）
-└── design-demos/         # 网页设计方向探索存档
+│   └── tavily.md · exa.md · lark-cli.md · cc-switch.md
+└── README.md
 ```
 
 ## 常见问题

@@ -24,6 +24,7 @@
     --shadow:rgba(46,30,20,.16);
   }
   *{box-sizing:border-box}
+  [hidden]{display:none!important}
   html{scroll-behavior:smooth}
   body{
     margin:0;
@@ -282,18 +283,17 @@
     <p class="step sub" style="background:none;border:0;box-shadow:none;padding:14px 0 0;margin:0;max-width:60ch;">
       下面每一步，都是把一行命令<b>复制</b>进一个叫「终端」的小窗口、再按<b>回车</b>。终端就是让你用文字给电脑下指令的地方——它不会咬人，照着做就行。先按你的系统把它打开：
     </p>
-    <div class="svc">
-      <div class="svc-card">
-        <h4><span>macOS</span> —— 叫「终端 / Terminal」</h4>
-        <p>按住 <code class="inline">⌘ Command</code> 再按 <code class="inline">空格</code>，弹出搜索框，输入「<b>终端</b>」或「terminal」，回车。一个小窗口就打开了。</p>
-      </div>
-      <div class="svc-card">
-        <h4><span>Windows</span> —— 用「PowerShell」</h4>
-        <p>按键盘左下角 <code class="inline">⊞ Win</code> 键（窗户图标），直接输入「<b>powershell</b>」，点出现的「Windows PowerShell」打开即可。</p>
-      </div>
+    <div class="svc-card" data-show-os="mac" style="margin-top:20px">
+      <h4><span>macOS</span> —— 叫「终端 / Terminal」</h4>
+      <p>按住 <code class="inline">⌘ Command</code> 再按 <code class="inline">空格</code>，弹出搜索框，输入「<b>终端</b>」或「terminal」，回车。一个小窗口就打开了。</p>
     </div>
-    <div class="callout"><span class="ic">▶</span><div><b>怎么运行命令？</b>点命令框右上角「复制」→ 切到终端窗口<b>粘贴</b>（macOS 按 <code class="inline">⌘ V</code>；Windows 的 PowerShell 里点<b>右键</b>，或按 <code class="inline">Ctrl V</code>）→ 按 <b>回车</b>。就这么简单。</div></div>
-    <div class="callout"><span class="ic">?</span><div>听过 <b>cmd</b>（命令提示符）吗？它也是个命令窗口，但本引导的命令请统一用 <b>PowerShell</b>，更顺、更少坑。</div></div>
+    <div class="svc-card" data-show-os="win" style="margin-top:20px">
+      <h4><span>Windows</span> —— 用「PowerShell」</h4>
+      <p>按键盘左下角 <code class="inline">⊞ Win</code> 键（窗户图标），直接输入「<b>powershell</b>」，点出现的「Windows PowerShell」打开即可。</p>
+    </div>
+    <div class="callout" data-show-os="mac"><span class="ic">▶</span><div><b>怎么运行命令？</b>点命令框右上角「复制」→ 切到终端窗口<b>粘贴</b>（按 <code class="inline">⌘ V</code>）→ 按 <b>回车</b>。就这么简单。</div></div>
+    <div class="callout" data-show-os="win"><span class="ic">▶</span><div><b>怎么运行命令？</b>点命令框右上角「复制」→ 切到 PowerShell 窗口<b>粘贴</b>（点<b>右键</b>，或按 <code class="inline">Ctrl V</code>）→ 按 <b>回车</b>。就这么简单。</div></div>
+    <div class="callout" data-show-os="win"><span class="ic">?</span><div>听过 <b>cmd</b>（命令提示符）吗？它也是个命令窗口，但本引导的命令请统一用 <b>PowerShell</b>，更顺、更少坑。</div></div>
   </section>
 
   <!-- CHECK ENV -->
@@ -509,6 +509,9 @@
     try{ localStorage.setItem('cc_os', os); }catch(e){}
     document.getElementById('btn-mac').classList.toggle('active', os==='mac');
     document.getElementById('btn-win').classList.toggle('active', os==='win');
+    document.querySelectorAll('[data-show-os]').forEach(function(el){
+      el.hidden = (el.getAttribute('data-show-os') !== os);
+    });
     renderCmds();
   }
   document.getElementById('btn-mac').addEventListener('click',function(){setOS('mac');});

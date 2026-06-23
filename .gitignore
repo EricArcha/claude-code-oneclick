@@ -17,3 +17,7 @@ tmp/
 .env.*
 secrets.*
 settings.local.json
+
+# 设计中间产物（本地归档，不入库）
+design-demos/
+brand-spec.md
