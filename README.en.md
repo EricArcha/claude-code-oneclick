@@ -20,7 +20,7 @@ No download needed — it opens right in the browser (with a Windows / macOS swi
 
 </div>
 
-Installing and configuring Claude Code can feel intimidating for newcomers. This repo turns it into a **plain-language, one-click, repeatable** guide. Copy → paste → Enter, and in three steps you'll have an AI that lives on your computer and can actually do things for you.
+Made for newcomers — a **plain-language, one-click, repeatable** guide. Just copy → paste → Enter.
 
 **After these three steps, you'll have:**
 
